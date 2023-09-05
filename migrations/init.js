@@ -62,6 +62,22 @@ function createParams(tableName) {
                     ReadCapacityUnits: 1,
                     WriteCapacityUnits: 1
                 }
+            },
+            {
+                IndexName: 'pokemonNameIndex',
+                KeySchema: [
+                    {
+                        AttributeName: 'name',
+                        KeyType: 'HASH'
+                    }
+                ],
+                Projection: {
+                    ProjectionType: 'ALL'
+                },
+                ProvisionedThroughput: {
+                    ReadCapacityUnits: 1,
+                    WriteCapacityUnits: 1
+                }
             }
         ],
     };
@@ -84,5 +100,80 @@ ddb.createTable(createParams('test-pokemon'), function (err, data) {
         console.log("Error", err);
     } else {
         console.log("Table Test Pokemons Created");
+    }
+});
+
+
+function createParamsType(tableName) {
+    const params = {
+        AttributeDefinitions: [
+            {
+                AttributeName: 'id',
+                AttributeType: 'N'
+            },
+            {
+                AttributeName: 'name',
+                AttributeType: 'S'
+            },
+            {
+                AttributeName: 'type',
+                AttributeType: 'S'
+            },
+        ],
+        KeySchema: [
+            {
+                AttributeName: 'type',
+                KeyType: 'HASH'
+            },
+            {
+                AttributeName: 'id',
+                KeyType: 'RANGE'
+            }
+        ],
+        ProvisionedThroughput: {
+            ReadCapacityUnits: 1,
+            WriteCapacityUnits: 1
+        },
+        TableName: tableName,
+        StreamSpecification: {
+            StreamEnabled: false
+        },
+        GlobalSecondaryIndexes: [
+            {
+                IndexName: 'namesIndex',
+                KeySchema: [
+                    {
+                        AttributeName: 'name',
+                        KeyType: 'HASH'
+                    }
+                ],
+                Projection: {
+                    ProjectionType: 'ALL'
+                },
+                ProvisionedThroughput: {
+                    ReadCapacityUnits: 1,
+                    WriteCapacityUnits: 1
+                }
+            }
+        ],
+    };
+
+    return params;
+}
+
+ddb.createTable(createParamsType('pokemon-by-type'), function (err, data) {
+    if (err) {
+        console.log("Error", err);
+    } else {
+        console.log("Table PokemonByType Created");
+    }
+});
+
+
+ddb.createTable(createParamsType('test-pokemon-by-type'), function (err, data) {
+    if (err) {
+        console.log("Error", err);
+    } else {
+        console.log("Table Test PokemonByType Created");
     }
 });
