@@ -7,7 +7,7 @@ import { PokemonDTO } from '../pokemon/dtos/pokemon.dto'
 export class DBService {
     private dynamoDB: DynamoDB
     tableName = (process.env.NODE_ENV === 'test') ? 'pokemon' : 'test-pokemon';
-
+    bytypeTableName = (process.env.NODE_ENV === 'test') ? 'pokemon-by-type' : 'test-pokemon-by-type';
     constructor() {
         this.dynamoDB = new DynamoDB({
             apiVersion: '2012-08-10',
@@ -55,7 +55,7 @@ export class DBService {
 
     }
 
-    async getAll(){
+    async getAll() {
         return new Promise((resolve, reject) => {
 
             this.dynamoDB.scan({ TableName: this.tableName }, function (err, data) {
@@ -98,6 +98,37 @@ export class DBService {
             TableName: this.tableName
         };
 
+        const requests = types.map((item) => {
+            return {
+                PutRequest: {
+                    Item: {
+                        name: {
+                            S: name
+                        },
+                        id: {
+                            N: id.toString()
+                        },
+                        type: {
+                            S: item
+                        }
+                    }
+                }
+            }
+        });
+
+        const paramsType: DynamoDB.BatchWriteItemInput = {
+            RequestItems: {
+                [this.bytypeTableName]: requests
+            }
+        };
+
+        this.dynamoDB.batchWriteItem(paramsType, function (err, data) {
+            if (err) {
+                console.log(err);
+                throw "Error updating pokemon - insert on types table"
+            }
+        });
+
         this.dynamoDB.putItem(params, function (err, data) {
             if (err) {
                 console.log(err, err.stack);
@@ -111,12 +142,69 @@ export class DBService {
 
     }
 
-    async getPokemonByNameOrId() {
+    async getPokemonByNameOrId(nameOrId: string): Promise<Array<any>> {
+
+        const keyName = (/^\d+$/.test(nameOrId)) ? 'id' : 'name';
+        const keyType = (/^\d+$/.test(nameOrId)) ? 'N' : 'S';
+        const indexName = (/^\d+$/.test(nameOrId)) ? null : "pokemonNameIndex"
+
+        const params = {
+            TableName: this.tableName,
+            IndexName: indexName,
+            ExpressionAttributeValues: {
+                ":v1": {
+                    [keyType]: nameOrId
+                }
+            },
+            KeyConditionExpression: `#${keyName} = :v1`,
+            ExpressionAttributeNames: {
+                [`#${keyName}`]: keyName,
+            }
+        };
+
+
+        return new Promise((resolve, reject) => {
+            this.dynamoDB.query(params, function (err, data) {
+                if (err) {
+                    console.log(err, err.stack);
+                    throw "Error querying pokemon by name or id."
+                }
+                else {
+                    return resolve(data.Items);
+                }
+            })
+
+        })
 
     }
 
-    async getPokemonByType() {
+    async getPokemonByType(pokemonType: string): Promise<Array<any>>{
+        const params = {
+            TableName: this.bytypeTableName,
+            ExpressionAttributeValues: {
+                ":v2": {
+                    S: pokemonType
+                }
+            },
+            ExpressionAttributeNames: {
+                "#type": "type"
+            },
+            KeyConditionExpression: "#type = :v2",
+        };
 
+        return new Promise((resolve, reject) => {
+            this.dynamoDB.query(params, function (err, data) {
+                if (err) {
+                    console.log(err, err.stack);
+                    throw "Error querying pokemon by type."
+                }
+                else {
+                    return resolve(data.Items);
+                }
+            })
+
+        })
     }
+
 
 }

@@ -45,8 +45,8 @@ export class SyncService {
             )
 
         )
-        
-        const {id, name, height, weight, url} = data;
+
+        const { id, name, height, weight, url } = data;
 
         const transformedData = {
             id,
