@@ -2,6 +2,7 @@ import { DynamoDB, Endpoint } from 'aws-sdk';
 import { Injectable } from '@nestjs/common';
 import { ResultsDTO } from '../sync/dto/syncAll.dto';
 import { PokemonDTO } from '../pokemon/dtos/pokemon.dto'
+import { request } from 'http';
 
 @Injectable()
 export class DBService {
@@ -18,9 +19,14 @@ export class DBService {
         })
     }
 
-    async insertPokemons(pokemons: ResultsDTO[]): Promise<Boolean> {
-        const requests = pokemons.map((item) => {
-            return {
+    async insertPokemons(pokemons: ResultsDTO[]) {
+        const batchSize = 25;
+        const batches = [];
+
+        for (let i = 0; i < pokemons.length; i += batchSize) {
+            const batch = pokemons.slice(i, i + batchSize);
+
+            const param = batch.map((item) => ({
                 PutRequest: {
                     Item: {
                         name: {
@@ -34,25 +40,28 @@ export class DBService {
                         }
                     }
                 }
-            }
-        });
-        const params: DynamoDB.BatchWriteItemInput = {
-            RequestItems: {
-                [this.tableName]: requests
-            }
-        };
+            }))
 
-        return new Promise<Boolean>((resolve, reject) => {
-            this.dynamoDB.batchWriteItem(params, function (err, data) {
-                if (err) {
-                    console.log(err);
-                    resolve(false);
-                } else {
-                    resolve(true);
+            batches.push(param);
+        }
+
+        for (const batch of batches) {
+            const params: DynamoDB.BatchWriteItemInput = {
+                RequestItems: {
+                    [this.tableName]: batch
                 }
-            });
-        })
+            };
 
+            new Promise((resolve) => {
+                this.dynamoDB.batchWriteItem(params, (err, data) => {
+                    if (err) {
+                        console.log(err);
+                        resolve(false);
+                        throw "error inserting pokemons";
+                    }
+                });
+            });
+        }
     }
 
     async getAll() {
@@ -178,7 +187,7 @@ export class DBService {
 
     }
 
-    async getPokemonByType(pokemonType: string): Promise<Array<any>>{
+    async getPokemonByType(pokemonType: string): Promise<Array<any>> {
         const params = {
             TableName: this.bytypeTableName,
             ExpressionAttributeValues: {
