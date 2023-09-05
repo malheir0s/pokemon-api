@@ -3,9 +3,6 @@ import { PokemonModule } from './pokemon/pokemon.module';
 import { SyncModule } from './sync/sync.module';
 
 @Module({
-  imports: [
-    PokemonModule,
-    SyncModule
-  ],
+  imports: [PokemonModule, SyncModule],
 })
-export class AppModule { }
+export class AppModule {}

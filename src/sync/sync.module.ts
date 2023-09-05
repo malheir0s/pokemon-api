@@ -5,9 +5,8 @@ import { HttpModule } from '@nestjs/axios';
 import { DBModule } from '../database/db.module';
 
 @Module({
-    imports: [HttpModule, DBModule],  
-    controllers: [SyncController],
-    providers: [SyncService],
+  imports: [HttpModule, DBModule],
+  controllers: [SyncController],
+  providers: [SyncService],
 })
-
-export class SyncModule { }
+export class SyncModule {}

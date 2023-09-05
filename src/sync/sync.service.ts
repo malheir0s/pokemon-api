@@ -8,58 +8,58 @@ import { PokemonDTO } from '../pokemon/dtos/pokemon.dto';
 
 @Injectable()
 export class SyncService {
-    constructor(
-        private readonly httpService: HttpService,
-        private readonly dbService: DBService
-    ) { }
-    base_url = "https://pokeapi.co/api/v2/pokemon/"
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly dbService: DBService,
+  ) {}
+  base_url = 'https://pokeapi.co/api/v2/pokemon/';
 
+  async syncAll(): Promise<ResultsDTO[]> {
+    const { data } = await firstValueFrom(
+      this.httpService
+        .get<SyncAllDTO>(this.base_url, {
+          params: {
+            limit: 100000,
+          },
+        })
+        .pipe(
+          catchError((error: AxiosError) => {
+            throw 'error - GET /pokemon';
+          }),
+        ),
+    );
 
-    async syncAll(): Promise<ResultsDTO[]> {
-        const { data } = await firstValueFrom(
-            this.httpService.get<SyncAllDTO>(this.base_url, {
-                params: {
-                    limit: 100000
-                }
-            }).pipe(
-                catchError((error: AxiosError) => {
-                    throw 'error - GET /pokemon';
-                }),
-            )
-        )
+    const transformedData = transformData(data);
 
-        const transformedData = transformData(data);
+    this.dbService.insertPokemons(transformedData);
 
-        this.dbService.insertPokemons(transformedData);
+    return transformedData;
+  }
 
-        return transformedData;
-    }
+  async syncPokemon(reqId: string): Promise<PokemonDTO> {
+    const reqUrl = this.base_url + reqId;
+    const { data } = await firstValueFrom(
+      this.httpService.get(reqUrl).pipe(
+        catchError((error: AxiosError) => {
+          throw new HttpException('Pokemon not found', HttpStatus.BAD_REQUEST);
+        }),
+      ),
+    );
 
-    async syncPokemon(reqId: String): Promise<PokemonDTO> {
-        const reqUrl = this.base_url + reqId
-        const { data } = await firstValueFrom(
-            this.httpService.get(reqUrl).pipe(
-                catchError((error: AxiosError) => {
-                    throw new HttpException('Pokemon not found', HttpStatus.BAD_REQUEST);
-                }),
-            )
+    const { id, name, height, weight, url } = data;
 
-        )
+    const transformedData = {
+      id,
+      name,
+      height,
+      weight,
+      url,
+      abilities: data.abilities.map((ability) => ability.ability.name),
+      types: data.types.map((type) => type.type.name),
+    };
 
-        const { id, name, height, weight, url } = data;
+    this.dbService.updatePokemon(transformedData);
 
-        const transformedData = {
-            id,
-            name,
-            height,
-            weight,
-            url,
-            abilities: data.abilities.map((ability) => ability.ability.name),
-            types: data.types.map((type) => type.type.name)
-        };
-
-        this.dbService.updatePokemon(transformedData);
-
-        return transformedData;
-    }
+    return transformedData;
+  }
 }

@@ -1,25 +1,25 @@
-// use pipes, delete deps 
+// use pipes, delete deps
 import { IsArray, IsNumber, IsNumberString, IsString } from 'class-validator';
 
-export class PokemonDTO{
-    @IsNumberString()
-    id: string;
+export class PokemonDTO {
+  @IsNumberString()
+  id: string;
 
-    @IsString()
-    name: string;
+  @IsString()
+  name: string;
 
-    @IsNumber()
-    height: Number;
-    
-    @IsNumber()
-    weight: Number;
+  @IsNumber()
+  height: number;
 
-    @IsArray()
-    types: string[];
+  @IsNumber()
+  weight: number;
 
-    @IsString()
-    url: string;
+  @IsArray()
+  types: string[];
 
-    @IsArray()
-    abilities: string[];
+  @IsString()
+  url: string;
+
+  @IsArray()
+  abilities: string[];
 }

@@ -4,8 +4,7 @@ import { PokemonService } from './pokemon.service';
 import { DBModule } from '../database/db.module';
 
 @Module({
-    controllers: [PokemonController],
-    providers: [PokemonService, DBModule],
+  controllers: [PokemonController],
+  providers: [PokemonService, DBModule],
 })
-
 export class PokemonModule {}
