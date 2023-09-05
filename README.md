@@ -1,17 +1,14 @@
-# Run DynamoDB locally:
-## $ docker-compose up -d
-
 # Run the application:
-## $ docker run --rm -it --env-file=.env -p 3000:3000 -v $(pwd):/work -w /work node:18.16.0 bash
+## $ docker-compose up
 
-# Migrate:
-## $ make migrate
-### PS: migration is needed before running the aplication!!!
+## Wait for the deps installation and migrations to be finished
 
-# Run the app:
-## $ npm run start
+### default app runs on localhost:3000
+### To change the APP port, change the PORT var on .env file, and also change the port on docker-compose.yaml
 
-# Run e2e tests:
+# Running e2e tests:
+## get in the app container:
+## $ docker exec -it app-node bash
 ## $ npm run test
 
 ## public url of this application: << to be deployed. >>
