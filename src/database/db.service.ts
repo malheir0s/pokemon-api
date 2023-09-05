@@ -1,19 +1,18 @@
-import { DynamoDB } from 'aws-sdk';
+import { DynamoDB, Endpoint } from 'aws-sdk';
 import { Injectable } from '@nestjs/common';
 import { ResultsDTO } from '../sync/dto/syncAll.dto';
-import { PokemonDTO  } from '../pokemon/dtos/pokemon.dto'
+import { PokemonDTO } from '../pokemon/dtos/pokemon.dto'
 
 @Injectable()
 export class DBService {
     private dynamoDB: DynamoDB
-
     tableName = (process.env.NODE_ENV === 'test') ? 'pokemon' : 'test-pokemon';
 
     constructor() {
         this.dynamoDB = new DynamoDB({
-            apiVersion: process.env.DYNAMO_DB_API_VERSION,
-            region: process.env.DYNAMO_DB_REGION,
-            endpoint: process.env.DYNAMO_DB_ENDPOINT,
+            apiVersion: '2012-08-10',
+            region: process.env.AWS_REGION,
+            endpoint: new Endpoint(process.env.AWS_ENDPOINT),
             accessKeyId: process.env.AWS_ACCESS_KEY_ID,
             secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
         })
@@ -56,20 +55,24 @@ export class DBService {
 
     }
 
-    async getAll() {
-        this.dynamoDB.scan({ TableName: this.tableName }, function (err, data) {
-            if (err) {
-                console.log(err)
-                throw "Error scanning table."
-            }
-            else {
-                return data.Items;
-            }
-        });
+    async getAll(){
+        return new Promise((resolve, reject) => {
+
+            this.dynamoDB.scan({ TableName: this.tableName }, function (err, data) {
+                if (err) {
+                    console.log(err)
+                    throw "Error scanning table."
+                }
+                else {
+                    return resolve(data.Items);
+                }
+            });
+        })
+
     }
 
     async updatePokemon(data: PokemonDTO) {
-        const {id, name, url, height, weight, types, abilities} = data;
+        const { id, name, url, height, weight, types, abilities } = data;
         const params = {
             Item: {
                 "name": {

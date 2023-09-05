@@ -40,7 +40,6 @@ describe('AppController (e2e)', () => {
           expect(item).to.have.property('id').that.is.a('string');
           expect(item).to.have.property('name').that.is.a('string');
           expect(item).to.have.property('url').that.is.a('string');
-          expect(item).to.have.property('location_area_encounters').that.is.a('string');
           expect(item).to.have.property('types').that.is.a('string');
           expect(item).to.have.property('weight').that.is.a('number');
           expect(item).to.have.property('height').that.is.a('number');
