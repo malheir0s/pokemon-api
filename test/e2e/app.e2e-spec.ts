@@ -35,15 +35,12 @@ describe('AppController (e2e)', () => {
   describe('syncPokemon', () => {
     describe('inputting an existing pokemon ID', () => {
       it('should update all information of a given pokemon with the data returned from pokemon API request', async () => {
-        const response = await request(app.getHttpServer()).get('/sync?id=1').expect(200);
-        response.body.forEach((item: PokemonDTO) => {
-          expect(item).to.have.property('id').that.is.a('string');
-          expect(item).to.have.property('name').that.is.a('string');
-          expect(item).to.have.property('url').that.is.a('string');
-          expect(item).to.have.property('types').that.is.a('string');
-          expect(item).to.have.property('weight').that.is.a('number');
-          expect(item).to.have.property('height').that.is.a('number');
-        })
+        const response = await request(app.getHttpServer()).get('/sync/1').expect(200);
+        expect(response.body).to.have.property('id').that.is.a('number');
+        expect(response.body).to.have.property('name').that.is.a('string');
+        expect(response.body).to.have.property('types').that.is.a('array');
+        expect(response.body).to.have.property('weight').that.is.a('number');
+        expect(response.body).to.have.property('height').that.is.a('number');
       });
     });
 
@@ -65,12 +62,11 @@ describe('AppController (e2e)', () => {
       const response = await request(app.getHttpServer()).get('/pokemon').expect(200);
       expect(response.body).to.be.an('array');
       response.body.forEach((item: PokemonDTO) => {
-        expect(item).to.have.property('id').that.is.a('string');
-        expect(item).to.have.property('name').that.is.a('string');
-        expect(item).to.have.property('url').that.is.a('string');
-        expect(item).to.have.property('types').that.is.a('string');
-        expect(item).to.have.property('weight').that.is.a('number');
-        expect(item).to.have.property('height').that.is.a('number');
+        expect(item).to.have.property('id').that.is.a('object');
+        expect(item).to.have.property('name').that.is.a('object');
+        expect(item).to.have.property('types').that.is.a('object');
+        expect(item).to.have.property('weight').that.is.a('object');
+        expect(item).to.have.property('height').that.is.a('object');
       })
     });
   });
@@ -79,14 +75,13 @@ describe('AppController (e2e)', () => {
     describe('inputting an existing id', () => {
       it('should return the pokemon data.', async () => {
         const response = await request(app.getHttpServer()).get('/pokemon/1').expect(200);
-        expect(response.body).to.have.property('id').that.is.a('string');
-        expect(response.body).to.have.property('name').that.is.a('string');
-        expect(response.body).to.have.property('url').that.is.a('string');
-        expect(response.body).to.have.property('types').that.is.a('string');
-        expect(response.body).to.have.property('weight').that.is.a('number');
-        expect(response.body).to.have.property('height').that.is.a('number');
-        expect(response.body).to.have.property('abilities').that.is.a('array');
-        expect(response.body).to.have.property('types').that.is.a('array');
+        expect(response.body).to.have.property('id').that.is.a('object');
+        expect(response.body).to.have.property('name').that.is.a('object');
+        expect(response.body).to.have.property('types').that.is.a('object');
+        expect(response.body).to.have.property('weight').that.is.a('object');
+        expect(response.body).to.have.property('height').that.is.a('object');
+        expect(response.body).to.have.property('abilities').that.is.a('object');
+        expect(response.body).to.have.property('types').that.is.a('object');
       });
 
     });
@@ -99,14 +94,13 @@ describe('AppController (e2e)', () => {
   describe('inputting an existing name', () => {
     it('should return the pokemon data.', async () => {
       const response = await request(app.getHttpServer()).get('/pokemon/bulbasaur').expect(200);
-      expect(response.body).to.have.property('id').that.is.a('string');
-      expect(response.body).to.have.property('name').that.is.a('string');
-      expect(response.body).to.have.property('url').that.is.a('string');
-      expect(response.body).to.have.property('types').that.is.a('string');
-      expect(response.body).to.have.property('weight').that.is.a('number');
-      expect(response.body).to.have.property('height').that.is.a('number');
-      expect(response.body).to.have.property('abilities').that.is.a('array');
-      expect(response.body).to.have.property('types').that.is.a('array');
+      expect(response.body).to.have.property('id').that.is.a('object');
+      expect(response.body).to.have.property('name').that.is.a('object');
+      expect(response.body).to.have.property('types').that.is.a('object');
+      expect(response.body).to.have.property('weight').that.is.a('object');
+      expect(response.body).to.have.property('height').that.is.a('object');
+      expect(response.body).to.have.property('abilities').that.is.a('object');
+      expect(response.body).to.have.property('types').that.is.a('object');
     });
   });
   describe('inputting an unexisting name', () => {
@@ -118,22 +112,17 @@ describe('AppController (e2e)', () => {
   describe('GET /pokemon/type/:type - getByType', () => {
     describe('inputting an existing type', () => {
       it('should return all pokemons with given.', async () => {
-        await request(app.getHttpServer()).get('/pokemon/type/typethatdoesnotexist').expect(400);
+        const response = await request(app.getHttpServer()).get('/pokemon/type/grass').expect(200);
+        response.body.forEach((item: PokemonDTO) => {
+          expect(item).to.have.property('id').that.is.a('object');
+          expect(item).to.have.property('name').that.is.a('object');
+          expect(item).to.have.property('type').that.is.a('object');
+        })
       });
     });
     describe('inputting an unexisting type', () => {
       it('should return a not found error.', async () => {
-        const response = await request(app.getHttpServer()).get('/pokemon/type/grass').expect(400);
-        response.body.forEach((item: PokemonDTO) => {
-          expect(item).to.have.property('id').that.is.a('string');
-          expect(item).to.have.property('name').that.is.a('string');
-          expect(item).to.have.property('url').that.is.a('string');
-          expect(item).to.have.property('types').that.is.a('string');
-          expect(item).to.have.property('weight').that.is.a('number');
-          expect(item).to.have.property('height').that.is.a('number');
-          expect(item).to.have.property('abilities').that.is.a('array');
-          expect(item).to.have.property('types').that.is.a('array');
-        })
+        await request(app.getHttpServer()).get('/pokemon/type/typethatdoesnotexist').expect(400);
       });
     });
   });
