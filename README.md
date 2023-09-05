@@ -6,9 +6,12 @@
 
 # Migrate:
 ## $ make migrate
+### PS: migration is needed before running the aplication!!!
 
 # Run the app:
 ## $ npm run start
 
 # Run e2e tests:
 ## $ npm run test
+
+## public url of this application: << to be deployed. >>
