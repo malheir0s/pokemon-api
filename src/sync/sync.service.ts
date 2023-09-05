@@ -19,7 +19,7 @@ export class SyncService {
         const { data } = await firstValueFrom(
             this.httpService.get<SyncAllDTO>(this.base_url, {
                 params: {
-                    limit: 1
+                    limit: 100000
                 }
             }).pipe(
                 catchError((error: AxiosError) => {

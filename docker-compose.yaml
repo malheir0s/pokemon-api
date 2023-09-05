@@ -10,3 +10,14 @@ services:
    volumes:
      - "./docker/dynamodb:/home/dynamodblocal/data"
    working_dir: /home/dynamodblocal
+ app-node:
+   image: node:18.16.0
+   volumes:
+    - "./:/work"
+   container_name: app-node
+   working_dir: "/work"
+   env_file:
+    - .env
+   ports:
+    - "3000:3000"
+   command: bash -c "npm install && make migrate && npm run start"
