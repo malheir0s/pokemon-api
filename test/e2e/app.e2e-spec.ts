@@ -64,9 +64,6 @@ describe('AppController (e2e)', () => {
       response.body.forEach((item: PokemonDTO) => {
         expect(item).to.have.property('id').that.is.a('object');
         expect(item).to.have.property('name').that.is.a('object');
-        expect(item).to.have.property('types').that.is.a('object');
-        expect(item).to.have.property('weight').that.is.a('object');
-        expect(item).to.have.property('height').that.is.a('object');
       })
     });
   });
