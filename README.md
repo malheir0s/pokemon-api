@@ -1,3 +1,5 @@
+# Pokemon API using Nest.js and DynamoDB
+
 # Run the application:
 ## $ docker-compose up
 
