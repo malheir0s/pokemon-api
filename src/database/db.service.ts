@@ -72,17 +72,14 @@ export class DBService {
     }
 
     async updatePokemon(data: PokemonDTO) {
-        const { id, name, url, height, weight, types, abilities } = data;
+        const { id, name, height, weight, types, abilities } = data;
         const params = {
             Item: {
                 "name": {
                     S: name
                 },
                 "id": {
-                    N: id
-                },
-                "url": {
-                    S: url
+                    N: id.toString()
                 },
                 "height": {
                     N: height.toString()
@@ -91,10 +88,10 @@ export class DBService {
                     N: weight.toString()
                 },
                 "abilities": {
-                    SS: abilities
+                    S: abilities.toString()
                 },
                 "types": {
-                    SS: types
+                    S: types.toString()
                 }
             },
             ReturnConsumedCapacity: "TOTAL",
