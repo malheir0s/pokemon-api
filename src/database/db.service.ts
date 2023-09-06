@@ -7,9 +7,9 @@ import { request } from 'http';
 @Injectable()
 export class DBService {
   private dynamoDB: DynamoDB;
-  tableName = process.env.NODE_ENV === 'test' ? 'pokemon' : 'test-pokemon';
+  tableName = process.env.NODE_ENV !== 'test' ? 'pokemon' : 'test-pokemon';
   bytypeTableName =
-    process.env.NODE_ENV === 'test'
+    process.env.NODE_ENV !== 'test'
       ? 'pokemon-by-type'
       : 'test-pokemon-by-type';
   constructor() {
